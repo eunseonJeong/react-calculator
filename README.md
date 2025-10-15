@@ -1,36 +1,249 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# React Calculator Library
 
-## Getting Started
+A modern, accessible React calculator component library built with TypeScript and Tailwind CSS.
 
-First, run the development server:
+## Features
+
+- 🧮 Full calculator functionality (addition, subtraction, multiplication, division)
+- ⌨️ Keyboard input support (numbers, operators, Enter, Escape, Backspace)
+- 📱 Responsive design for mobile and desktop
+- 🔄 Portrait and landscape orientations
+- 🎨 Customizable themes with Tailwind CSS classes
+- ♿ Accessible components with focus management
+- 📚 Storybook documentation
+- 🔧 TypeScript support
+- 🏗️ Built with Feature-Sliced Design (FSD) architecture
+
+## Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install @your-username/react-calculator
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Usage
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Basic Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```tsx
+import { Calculator } from '@your-username/react-calculator';
 
-## Learn More
+function App() {
+  return (
+    <div>
+      <Calculator />
+    </div>
+  );
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+### With Custom Orientation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```tsx
+import { Calculator } from '@your-username/react-calculator';
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+function App() {
+  return (
+    <div>
+      {/* Portrait (default) */}
+      <Calculator orientation="portrait" />
+      
+      {/* Landscape */}
+      <Calculator orientation="landscape" />
+    </div>
+  );
+}
+```
 
-## Deploy on Vercel
+### With Custom Theme
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```tsx
+import { Calculator } from '@your-username/react-calculator';
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+function App() {
+  const customTheme = {
+    numberButton: 'bg-blue-200 hover:bg-blue-300 text-blue-800',
+    operationButton: 'bg-green-500 hover:bg-green-600 text-white',
+    functionButton: 'bg-red-500 hover:bg-red-600 text-white',
+    display: 'bg-purple-900 text-purple-100',
+    container: 'bg-yellow-100',
+  };
+
+  return (
+    <div>
+      <Calculator theme={customTheme} />
+    </div>
+  );
+}
+```
+
+### Without Keyboard Support
+
+```tsx
+import { Calculator } from '@your-username/react-calculator';
+
+function App() {
+  return (
+    <div>
+      <Calculator enableKeyboard={false} />
+    </div>
+  );
+}
+```
+
+### Using Individual Components
+
+```tsx
+import { CalculatorButton, CalculatorDisplay, useCalculator } from '@your-username/react-calculator';
+
+function CustomCalculator() {
+  const { display, handleInput } = useCalculator();
+  
+  return (
+    <div>
+      <CalculatorDisplay value={display} />
+      <CalculatorButton value="1" onClick={handleInput} />
+    </div>
+  );
+}
+```
+
+## Components
+
+### Calculator
+
+The main calculator component with full functionality.
+
+**Props:**
+- `className?: string` - Additional CSS classes
+- `orientation?: 'portrait' | 'landscape'` - Calculator layout orientation (default: 'portrait')
+- `theme?: CalculatorTheme` - Custom theme object with Tailwind CSS classes
+- `enableKeyboard?: boolean` - Enable keyboard input support (default: true)
+
+### CalculatorButton
+
+A customizable button component for the calculator.
+
+**Props:**
+- `value: string` - Button text/value
+- `onClick: (value: string) => void` - Click handler
+- `className?: string` - Additional CSS classes
+- `variant?: 'number' | 'operation' | 'function'` - Button style variant
+- `theme?: CalculatorTheme` - Custom theme object
+
+### CalculatorDisplay
+
+A display component for showing calculator values.
+
+**Props:**
+- `value: string` - Display value
+- `className?: string` - Additional CSS classes
+- `theme?: CalculatorTheme` - Custom theme object
+
+## Theme System
+
+The calculator supports custom theming through Tailwind CSS classes:
+
+```tsx
+interface CalculatorTheme {
+  numberButton?: string;    // Tailwind classes for number buttons
+  operationButton?: string; // Tailwind classes for operation buttons
+  functionButton?: string;  // Tailwind classes for function buttons (C, CE)
+  display?: string;         // Tailwind classes for display
+  container?: string;       // Tailwind classes for container
+}
+```
+
+### Example Themes
+
+**Default Theme:**
+```tsx
+{
+  numberButton: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
+  operationButton: 'bg-orange-500 hover:bg-orange-600 text-white',
+  functionButton: 'bg-gray-500 hover:bg-gray-600 text-white',
+  display: 'bg-gray-900 text-white',
+  container: 'bg-gray-100',
+}
+```
+
+**Dark Theme:**
+```tsx
+{
+  numberButton: 'bg-gray-700 hover:bg-gray-600 text-white',
+  operationButton: 'bg-orange-600 hover:bg-orange-700 text-white',
+  functionButton: 'bg-gray-800 hover:bg-gray-700 text-white',
+  display: 'bg-black text-green-400',
+  container: 'bg-gray-900',
+}
+```
+
+## Keyboard Support
+
+The calculator supports keyboard input when `enableKeyboard` is true:
+
+- **Numbers**: 0-9
+- **Operators**: +, -, *, /
+- **Enter**: Equals (=)
+- **Escape**: Clear (C)
+- **Backspace**: Clear Entry (CE)
+- **Comma/Period**: Decimal point (.)
+
+## Hooks
+
+### useCalculator
+
+A custom hook that provides calculator state and logic.
+
+**Parameters:**
+- `enableKeyboard?: boolean` - Enable keyboard input support (default: true)
+
+**Returns:**
+- `display: string` - Current display value
+- `handleInput: (input: string) => void` - Function to handle user input
+- `reset: () => void` - Function to reset calculator
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/react-calculator.git
+cd react-calculator
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Start Storybook
+npm run storybook
+```
+
+### Building
+
+```bash
+# Build the library
+npm run build-lib
+
+# Build Storybook
+npm run build-storybook
+```
+
+## Storybook
+
+This project includes Storybook for component documentation and testing. Run `npm run storybook` to view the interactive documentation with various themes and configurations.
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.# react-calculator
