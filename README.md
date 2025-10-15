@@ -17,7 +17,7 @@ A modern, accessible React calculator component library built with TypeScript an
 ## Installation
 
 ```bash
-npm install @your-username/react-calculator
+npm install react-calcboard
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ npm install @your-username/react-calculator
 ### Basic Usage
 
 ```tsx
-import { Calculator } from '@your-username/react-calculator';
+import { Calculator } from 'react-calcboard';
 
 function App() {
   return (
@@ -39,7 +39,7 @@ function App() {
 ### With Custom Orientation
 
 ```tsx
-import { Calculator } from '@your-username/react-calculator';
+import { Calculator } from 'react-calcboard';
 
 function App() {
   return (
@@ -57,7 +57,7 @@ function App() {
 ### With Custom Theme
 
 ```tsx
-import { Calculator } from '@your-username/react-calculator';
+import { Calculator } from 'react-calcboard';
 
 function App() {
   const customTheme = {
@@ -79,7 +79,7 @@ function App() {
 ### Without Keyboard Support
 
 ```tsx
-import { Calculator } from '@your-username/react-calculator';
+import { Calculator } from 'react-calcboard';
 
 function App() {
   return (
@@ -93,7 +93,7 @@ function App() {
 ### Using Individual Components
 
 ```tsx
-import { CalculatorButton, CalculatorDisplay, useCalculator } from '@your-username/react-calculator';
+import { CalculatorButton, CalculatorDisplay, useCalculator } from 'react-calcboard';
 
 function CustomCalculator() {
   const { display, handleInput } = useCalculator();
@@ -213,7 +213,7 @@ A custom hook that provides calculator state and logic.
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/react-calculator.git
+git clone https://github.com/eunseonJeong/react-calculator.git
 cd react-calculator
 
 # Install dependencies

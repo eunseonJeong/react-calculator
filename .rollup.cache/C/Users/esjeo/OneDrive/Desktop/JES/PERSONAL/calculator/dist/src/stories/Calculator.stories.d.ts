@@ -1,0 +1,10 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import { Calculator } from '../entities/Calculator';
+declare const meta: Meta<typeof Calculator>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+export declare const Default: Story;
+export declare const Landscape: Story;
+export declare const WithoutKeyboard: Story;
+export declare const CustomTheme: Story;
+export declare const DarkTheme: Story;

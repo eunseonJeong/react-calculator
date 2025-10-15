@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["index.ts"],"names":[],"mappings":"AAAA,cAAc,SAAS,CAAC;AACxB,cAAc,cAAc,CAAC;AAC7B,OAAO,EAAE,aAAa,EAAE,MAAM,iBAAiB,CAAC","sourcesContent":["export * from './types';\r\nexport * from './calculator';\r\nexport { useCalculator } from './useCalculator';\r\n"]}

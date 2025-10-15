@@ -40,12 +40,7 @@ export const Calculator: React.FC<CalculatorProps> = ({
 
   return (
     <div 
-      className={`
-        p-4 sm:p-6 rounded-xl shadow-lg mx-auto
-        ${isLandscape ? 'max-w-2xl' : 'max-w-sm'}
-        ${containerClass}
-        ${className}
-      `}
+      className={`p-4 sm:p-6 rounded-xl shadow-lg mx-auto ${isLandscape ? 'max-w-2xl' : 'max-w-sm'} ${containerClass} ${className}`}
     >
       <CalculatorDisplay value={display} theme={theme} />
       
