@@ -1,6 +1,6 @@
 'use client'
 import { useState, useCallback, useEffect } from 'react';
-import { CalculatorState, CalculatorOperation } from '../lib/types';
+import { CalculatorState, CalculatorOperation, CalculatorHistoryItem } from '../lib/types';
 import { calculate, formatDisplay, isOperation, isNumber, isDecimalPoint } from '../lib/calculator';
 
 const initialState: CalculatorState = {
@@ -21,8 +21,10 @@ const keyMapping: Record<string, string> = {
   'Backspace': 'CE',
 };
 
-export const useCalculator = (enableKeyboard: boolean = true) => {
+export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boolean = true) => {
   const [state, setState] = useState<CalculatorState>(initialState);
+  const [history, setHistory] = useState<CalculatorHistoryItem[]>([]);
+  const [currentExpression, setCurrentExpression] = useState<string>('');
 
   const handleInput = useCallback((input: string) => {
     setState(prevState => {
@@ -44,6 +46,7 @@ export const useCalculator = (enableKeyboard: boolean = true) => {
 
   const handleNumberInput = (prevState: CalculatorState, input: string): CalculatorState => {
     if (prevState.waitingForOperand) {
+      setCurrentExpression(prevState.previousValue + ' ' + prevState.operation + ' ' + input);
       return {
         ...prevState,
         display: input,
@@ -51,9 +54,12 @@ export const useCalculator = (enableKeyboard: boolean = true) => {
       };
     }
     
+    const newDisplay = prevState.display === '0' ? input : prevState.display + input;
+    setCurrentExpression(newDisplay);
+    
     return {
       ...prevState,
-      display: prevState.display === '0' ? input : prevState.display + input,
+      display: newDisplay,
     };
   };
 
@@ -76,21 +82,44 @@ export const useCalculator = (enableKeyboard: boolean = true) => {
     return prevState;
   };
 
+  const addToHistory = useCallback((expression: string, result: string) => {
+    if (!enableHistory) return;
+    
+    const historyItem: CalculatorHistoryItem = {
+      id: Date.now().toString(),
+      expression,
+      result,
+      timestamp: new Date(),
+    };
+    
+    setHistory(prev => [historyItem, ...prev].slice(0, 50)); // 최대 50개까지만 저장
+  }, [enableHistory]);
+
   const handleOperationInput = (prevState: CalculatorState, operation: CalculatorOperation): CalculatorState => {
     if (operation === 'C') {
+      setCurrentExpression('');
       return initialState;
     }
     
     if (operation === 'CE') {
+      const currentDisplay = prevState.display;
+      if (currentDisplay.length <= 1) {
+        return {
+          ...prevState,
+          display: '0',
+        };
+      }
+      
       return {
         ...prevState,
-        display: '0',
+        display: currentDisplay.slice(0, -1),
       };
     }
     
     const inputValue = parseFloat(prevState.display);
     
     if (prevState.previousValue === null) {
+      setCurrentExpression(prevState.display + ' ' + operation);
       return {
         ...prevState,
         previousValue: inputValue,
@@ -102,8 +131,16 @@ export const useCalculator = (enableKeyboard: boolean = true) => {
     if (prevState.operation && !prevState.waitingForOperand) {
       try {
         const result = calculate(prevState.previousValue, inputValue, prevState.operation);
+        const formattedResult = formatDisplay(result);
+        
+        // 히스토리에 추가
+        const expression = `${prevState.previousValue} ${prevState.operation} ${inputValue} =`;
+        addToHistory(expression, formattedResult);
+        
+        setCurrentExpression(formattedResult);
+        
         return {
-          display: formatDisplay(result),
+          display: formattedResult,
           previousValue: operation === '=' ? null : result,
           operation: operation === '=' ? null : operation,
           waitingForOperand: operation === '=' ? false : true,
@@ -116,6 +153,7 @@ export const useCalculator = (enableKeyboard: boolean = true) => {
       }
     }
     
+    setCurrentExpression(prevState.display + ' ' + operation);
     return {
       ...prevState,
       operation,
@@ -125,6 +163,37 @@ export const useCalculator = (enableKeyboard: boolean = true) => {
 
   const reset = useCallback(() => {
     setState(initialState);
+    setCurrentExpression('');
+  }, []);
+
+  const clearHistory = useCallback(() => {
+    setHistory([]);
+  }, []);
+
+  const removeFromHistory = useCallback((id: string) => {
+    setHistory(prev => prev.filter(item => item.id !== id));
+  }, []);
+
+  const useHistoryValue = useCallback((value: string) => {
+    setState(prevState => ({
+      ...prevState,
+      display: value,
+      waitingForOperand: false,
+    }));
+  }, []);
+
+  const copyToClipboard = useCallback(async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      // 클립보드 API가 지원되지 않는 경우 폴백
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
   }, []);
 
   // 키보드 이벤트 핸들러
@@ -154,5 +223,11 @@ export const useCalculator = (enableKeyboard: boolean = true) => {
     display: state.display,
     handleInput,
     reset,
+    history,
+    clearHistory,
+    removeFromHistory,
+    useHistoryValue,
+    copyToClipboard,
+    currentExpression,
   };
 };

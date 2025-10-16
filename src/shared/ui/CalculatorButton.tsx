@@ -19,7 +19,7 @@ export const CalculatorButton: React.FC<CalculatorButtonProps & { theme?: Calcul
   const currentTheme = { ...defaultTheme, ...theme };
   const variantClass = currentTheme[`${variant}Button` as keyof CalculatorTheme] || '';
   
-  const baseClasses = 'w-full h-12 sm:h-16 text-lg sm:text-xl font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500';
+  const baseClasses = 'w-full p-2 sm:p-3 text-lg sm:text-xl font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500';
   
   return (
     <button

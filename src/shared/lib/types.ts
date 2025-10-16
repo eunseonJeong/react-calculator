@@ -22,9 +22,17 @@ export interface CalculatorTheme {
   container?: string;
 }
 
+export interface CalculatorHistoryItem {
+  id: string;
+  expression: string;
+  result: string;
+  timestamp: Date;
+}
+
 export interface CalculatorProps {
   className?: string;
   orientation?: 'portrait' | 'landscape';
   theme?: CalculatorTheme;
   enableKeyboard?: boolean;
+  enableHistory?: boolean;
 }
