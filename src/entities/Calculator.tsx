@@ -54,10 +54,10 @@ export const Calculator: React.FC<CalculatorProps> = ({
   const containerClass = currentTheme.container || 'bg-gray-100';
 
   return (
-    <div className={`${showHistory && enableHistory ? 'flex flex-col lg:flex-row gap-4' : ''} ${isLandscape ? 'max-w-8xl' : 'max-w-sm'} mx-auto ${className}`}>
+    <div className={`react-calcboard-container relative z-10 ${showHistory && enableHistory ? 'flex flex-col lg:flex-row gap-4' : ''} ${isLandscape ? 'max-w-8xl' : 'max-w-sm'} mx-auto ${className}`}>
       {/* 메인 계산기 */}
       <div 
-        className={`p-4 sm:p-6 rounded-xl shadow-lg ${showHistory && enableHistory ? (isLandscape ? 'flex-1' : 'w-full') : 'w-full'} ${containerClass}`}
+        className={`react-calcboard-main p-4 sm:p-6 rounded-xl shadow-lg ${showHistory && enableHistory ? (isLandscape ? 'flex-1' : 'w-full') : 'w-full'} ${containerClass}`}
       >
         <div className="mb-4">
           <div className="flex justify-between items-center">
