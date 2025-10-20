@@ -33,11 +33,11 @@ export default {
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
     }),
     typescript({
-      tsconfig: './tsconfig.json',
+      tsconfig: './tsconfig.lib.json',
       declaration: true,
       declarationDir: './dist',
       exclude: ['**/*.stories.*', '**/*.test.*', '**/app/**', '**/pages/**', '**/stories/**', '**/widgets/**', '**/features/**'],
-      outputToFilesystem: false,
+      outputToFilesystem: true,
     }),
   ],
   external: ['react', 'react-dom'],
