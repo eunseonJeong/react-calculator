@@ -86,7 +86,7 @@ export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boo
     if (!enableHistory) return;
     
     const historyItem: CalculatorHistoryItem = {
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       expression,
       result,
       timestamp: new Date(),
