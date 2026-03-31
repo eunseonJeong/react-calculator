@@ -35,4 +35,6 @@ export interface CalculatorProps {
   theme?: CalculatorTheme;
   enableKeyboard?: boolean;
   enableHistory?: boolean;
+  onChange?: (value: string) => void;
+  minWidth?: number | string;
 }

@@ -1,13 +1,6 @@
 import React from 'react';
 import { CalculatorButtonProps, CalculatorTheme } from '../lib/types';
-
-const defaultTheme: Required<CalculatorTheme> = {
-  numberButton: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
-  operationButton: 'bg-orange-500 hover:bg-orange-600 text-white',
-  functionButton: 'bg-gray-500 hover:bg-gray-600 text-white',
-  display: 'bg-gray-900 text-white',
-  container: 'bg-gray-100',
-};
+import { defaultCalculatorTheme } from '../lib/theme';
 
 export const CalculatorButton: React.FC<CalculatorButtonProps & { theme?: CalculatorTheme }> = ({
   value,
@@ -16,10 +9,10 @@ export const CalculatorButton: React.FC<CalculatorButtonProps & { theme?: Calcul
   variant = 'number',
   theme,
 }) => {
-  const currentTheme = { ...defaultTheme, ...theme };
+  const currentTheme = { ...defaultCalculatorTheme, ...theme };
   const variantClass = currentTheme[`${variant}Button` as keyof CalculatorTheme] || '';
   
-  const baseClasses = 'w-full p-2 sm:p-3 text-lg sm:text-xl font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500';
+  const baseClasses = 'w-full rounded-2xl px-3 py-3 text-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 active:scale-[0.98] sm:px-4 sm:py-4 sm:text-xl';
   
   return (
     <button

@@ -1,7 +1,15 @@
 'use client'
 import { useState, useCallback, useEffect } from 'react';
 import { CalculatorState, CalculatorOperation, CalculatorHistoryItem } from '../lib/types';
-import { calculate, formatDisplay, isOperation, isNumber, isDecimalPoint } from '../lib/calculator';
+import {
+  calculate,
+  formatDisplay,
+  formatInputDisplay,
+  isOperation,
+  isNumber,
+  isDecimalPoint,
+  stripDisplayFormatting,
+} from '../lib/calculator';
 
 const initialState: CalculatorState = {
   display: '0',
@@ -46,7 +54,7 @@ export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boo
 
   const handleNumberInput = (prevState: CalculatorState, input: string): CalculatorState => {
     if (prevState.waitingForOperand) {
-      setCurrentExpression(prevState.previousValue + ' ' + prevState.operation + ' ' + input);
+      setCurrentExpression(`${formatDisplay(prevState.previousValue ?? 0)} ${prevState.operation} ${input}`);
       return {
         ...prevState,
         display: input,
@@ -54,7 +62,9 @@ export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boo
       };
     }
     
-    const newDisplay = prevState.display === '0' ? input : prevState.display + input;
+    const unformattedDisplay = stripDisplayFormatting(prevState.display);
+    const nextValue = unformattedDisplay === '0' ? input : unformattedDisplay + input;
+    const newDisplay = formatInputDisplay(nextValue);
     setCurrentExpression(newDisplay);
     
     return {
@@ -72,10 +82,12 @@ export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boo
       };
     }
     
-    if (prevState.display.indexOf('.') === -1) {
+    const unformattedDisplay = stripDisplayFormatting(prevState.display);
+
+    if (unformattedDisplay.indexOf('.') === -1) {
       return {
         ...prevState,
-        display: prevState.display + '.',
+        display: formatInputDisplay(unformattedDisplay + '.'),
       };
     }
     
@@ -92,7 +104,20 @@ export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boo
       timestamp: new Date(),
     };
     
-    setHistory(prev => [historyItem, ...prev].slice(0, 50)); // 최대 50개까지만 저장
+    setHistory(prev => {
+      const latestItem = prev[0];
+
+      // React Strict Mode에서 상태 업데이터가 두 번 평가돼도 같은 기록이 중복 저장되지 않도록 방어합니다.
+      if (
+        latestItem &&
+        latestItem.expression === expression &&
+        latestItem.result === result
+      ) {
+        return prev;
+      }
+
+      return [historyItem, ...prev].slice(0, 50);
+    }); // 최대 50개까지만 저장
   }, [enableHistory]);
 
   const handleOperationInput = (prevState: CalculatorState, operation: CalculatorOperation): CalculatorState => {
@@ -102,7 +127,7 @@ export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boo
     }
     
     if (operation === 'CE') {
-      const currentDisplay = prevState.display;
+      const currentDisplay = stripDisplayFormatting(prevState.display);
       if (currentDisplay.length <= 1) {
         return {
           ...prevState,
@@ -112,11 +137,11 @@ export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boo
       
       return {
         ...prevState,
-        display: currentDisplay.slice(0, -1),
+        display: formatInputDisplay(currentDisplay.slice(0, -1)),
       };
     }
     
-    const inputValue = parseFloat(prevState.display);
+    const inputValue = parseFloat(stripDisplayFormatting(prevState.display));
     
     if (prevState.previousValue === null) {
       setCurrentExpression(prevState.display + ' ' + operation);
@@ -134,7 +159,7 @@ export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boo
         const formattedResult = formatDisplay(result);
         
         // 히스토리에 추가
-        const expression = `${prevState.previousValue} ${prevState.operation} ${inputValue} =`;
+        const expression = `${formatDisplay(prevState.previousValue)} ${prevState.operation} ${formatDisplay(inputValue)} =`;
         addToHistory(expression, formattedResult);
         
         setCurrentExpression(formattedResult);

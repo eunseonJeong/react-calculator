@@ -1,14 +1,17 @@
 'use client'
 import { CalculatorDisplay, CalculatorButton, CalculatorHistory, useCalculator } from '@/shared';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CalculatorProps } from '@/shared/lib/types';
+import { defaultCalculatorTheme } from '@/shared/lib/theme';
 
 export const Calculator: React.FC<CalculatorProps> = ({ 
   className = '', 
   orientation = 'portrait',
   theme,
   enableKeyboard = true,
-  enableHistory = true 
+  enableHistory = true,
+  onChange,
+  minWidth,
 }) => {
   const { 
     display, 
@@ -21,6 +24,18 @@ export const Calculator: React.FC<CalculatorProps> = ({
   } = useCalculator(enableKeyboard, enableHistory);
   
   const [showHistory, setShowHistory] = useState(false);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (!onChange) return;
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    onChange(display);
+  }, [display, onChange]);
 
   // 세로 레이아웃
   const portraitLayout = [
@@ -45,19 +60,20 @@ export const Calculator: React.FC<CalculatorProps> = ({
 
   const buttonLayout = orientation === 'landscape' ? landscapeLayout : portraitLayout;
   const isLandscape = orientation === 'landscape';
-
-  const defaultTheme = {
-    container: 'bg-gray-100',
+  const currentTheme = { ...defaultCalculatorTheme, ...theme };
+  const containerClass = currentTheme.container || defaultCalculatorTheme.container;
+  const resolvedMinWidth =
+    minWidth ?? (isLandscape ? '28rem' : '20rem');
+  const minWidthStyle = {
+    minWidth: typeof resolvedMinWidth === 'number' ? `${resolvedMinWidth}px` : resolvedMinWidth,
   };
 
-  const currentTheme = { ...defaultTheme, ...theme };
-  const containerClass = currentTheme.container || 'bg-gray-100';
-
   return (
-    <div className={`react-calcboard-container relative z-10 ${showHistory && enableHistory ? 'flex flex-col lg:flex-row gap-4' : ''} ${isLandscape ? 'max-w-8xl' : 'max-w-sm'} mx-auto ${className}`}>
+    <div className={`react-calcboard-container relative z-10 ${showHistory && enableHistory ? 'flex flex-col gap-4 lg:flex-row' : ''} ${isLandscape ? 'max-w-5xl' : 'max-w-sm'} mx-auto ${className}`}>
       {/* 메인 계산기 */}
       <div 
-        className={`react-calcboard-main p-4 sm:p-6 rounded-xl shadow-lg ${showHistory && enableHistory ? (isLandscape ? 'flex-1' : 'w-full') : 'w-full'} ${containerClass}`}
+        className={`react-calcboard-main rounded-[2rem] border p-4 shadow-2xl shadow-stone-300/60 sm:p-6 ${showHistory && enableHistory ? (isLandscape ? 'flex-1' : 'w-full') : 'w-full'} ${containerClass}`}
+        style={minWidthStyle}
       >
         <div className="mb-4">
           <div className="flex justify-between items-center">
@@ -67,7 +83,7 @@ export const Calculator: React.FC<CalculatorProps> = ({
             <div className="flex gap-2 ml-2 flex-shrink-0">
             <button
               onClick={handleCopyResult}
-              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
+              className="rounded-xl border border-stone-200 bg-white/80 p-2 text-stone-600 transition-colors hover:bg-white hover:text-slate-800"
               title="결과 복사"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,10 +94,10 @@ export const Calculator: React.FC<CalculatorProps> = ({
             {enableHistory && (
               <button
                 onClick={() => setShowHistory(!showHistory)}
-                className={`p-2 rounded transition-colors ${
+                className={`rounded-xl border p-2 transition-colors ${
                   showHistory 
-                    ? 'text-blue-600 bg-blue-100' 
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                    ? 'border-amber-300 bg-amber-100 text-amber-800' 
+                    : 'border-stone-200 bg-white/80 text-stone-600 hover:bg-white hover:text-slate-800'
                 }`}
                 title="계산 기록"
               >
