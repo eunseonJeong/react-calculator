@@ -1,6 +1,12 @@
 'use client'
 import { useState, useCallback, useEffect } from 'react';
-import { CalculatorState, CalculatorOperation, CalculatorHistoryItem } from '../lib/types';
+import {
+  CalculatorState,
+  CalculatorOperation,
+  CalculatorHistoryItem,
+  UseCalculatorOptions,
+  UseCalculatorReturn,
+} from '../lib/types';
 import {
   calculate,
   formatDisplay,
@@ -29,7 +35,19 @@ const keyMapping: Record<string, string> = {
   'Backspace': 'CE',
 };
 
-export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boolean = true) => {
+export const useCalculator = (
+  enableKeyboardOrOptions: boolean | UseCalculatorOptions = true,
+  legacyEnableHistory: boolean = true
+): UseCalculatorReturn => {
+  const options =
+    typeof enableKeyboardOrOptions === 'object'
+      ? enableKeyboardOrOptions
+      : {
+          enableKeyboard: enableKeyboardOrOptions,
+          enableHistory: legacyEnableHistory,
+        };
+  const enableKeyboard = options.enableKeyboard ?? true;
+  const enableHistory = options.enableHistory ?? true;
   const [state, setState] = useState<CalculatorState>(initialState);
   const [history, setHistory] = useState<CalculatorHistoryItem[]>([]);
   const [currentExpression, setCurrentExpression] = useState<string>('');
@@ -246,13 +264,21 @@ export const useCalculator = (enableKeyboard: boolean = true, enableHistory: boo
 
   return {
     display: state.display,
+    currentExpression,
+    history,
     handleInput,
     reset,
-    history,
     clearHistory,
     removeFromHistory,
     useHistoryValue,
     copyToClipboard,
-    currentExpression,
+    actions: {
+      input: handleInput,
+      reset,
+      clearHistory,
+      removeHistoryItem: removeFromHistory,
+      useHistoryValue,
+      copyToClipboard,
+    },
   };
 };

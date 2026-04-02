@@ -3,6 +3,11 @@ import { CalculatorDisplay, CalculatorButton, CalculatorHistory, useCalculator }
 import React, { useEffect, useRef, useState } from 'react';
 import { CalculatorProps } from '@/shared/lib/types';
 import { defaultCalculatorTheme } from '@/shared/lib/theme';
+import {
+  getCalculatorButtonClassName,
+  getCalculatorButtonVariant,
+  getCalculatorLayout,
+} from '@/shared/lib/layout';
 
 export const Calculator: React.FC<CalculatorProps> = ({ 
   className = '', 
@@ -13,15 +18,17 @@ export const Calculator: React.FC<CalculatorProps> = ({
   onChange,
   minWidth,
 }) => {
-  const { 
-    display, 
-    handleInput, 
-    history, 
-    clearHistory, 
-    removeFromHistory, 
-    useHistoryValue, 
-    copyToClipboard 
-  } = useCalculator(enableKeyboard, enableHistory);
+  const {
+    display,
+    history,
+    actions: {
+      input: handleInput,
+      clearHistory,
+      removeHistoryItem: removeFromHistory,
+      useHistoryValue,
+      copyToClipboard,
+    },
+  } = useCalculator({ enableKeyboard, enableHistory });
   
   const [showHistory, setShowHistory] = useState(false);
   const isFirstRender = useRef(true);
@@ -37,28 +44,11 @@ export const Calculator: React.FC<CalculatorProps> = ({
     onChange(display);
   }, [display, onChange]);
 
-  // 세로 레이아웃
-  const portraitLayout = [
-    ['C', 'CE', '/', '*'],
-    ['7', '8', '9', '-'],
-    ['4', '5', '6', '+'],
-    ['1', '2', '3', '='],
-    ['0', '.'],
-  ];
-
-  // 가로 레이아웃 (더 넓은 형태)
-  const landscapeLayout = [
-    ['C', 'CE', '/', '*', '='],
-    ['7', '8', '9', '-', '0'],
-    ['4', '5', '6', '+', '.'],
-    ['1', '2', '3'],
-  ];
-
   const handleCopyResult = () => {
     copyToClipboard(display);
   };
 
-  const buttonLayout = orientation === 'landscape' ? landscapeLayout : portraitLayout;
+  const buttonLayout = getCalculatorLayout(orientation);
   const isLandscape = orientation === 'landscape';
   const currentTheme = { ...defaultCalculatorTheme, ...theme };
   const containerClass = currentTheme.container || defaultCalculatorTheme.container;
@@ -112,40 +102,21 @@ export const Calculator: React.FC<CalculatorProps> = ({
         
         <div className={`grid gap-2 sm:gap-3 ${isLandscape ? 'grid-cols-5' : 'grid-cols-4'}`}>
           {buttonLayout.map((row, rowIndex) => 
-            row.map((button, colIndex) => {
-              const isLastRow = rowIndex === buttonLayout.length - 1;
-              const isZeroButton = button === '0';
-              const isDecimalButton = button === '.';
-              
-              let buttonClass = '';
-              let variant: 'number' | 'operation' | 'function' = 'number';
-              
-              if (['+', '-', '*', '/', '='].includes(button)) {
-                variant = 'operation';
-              } else if (['C', 'CE'].includes(button)) {
-                variant = 'function';
-              }
-              
-              // 세로 레이아웃에서의 특별한 배치
-              if (!isLandscape) {
-                if (isZeroButton) {
-                  buttonClass = 'col-span-2';
-                } else if (isDecimalButton && isLastRow) {
-                  buttonClass = 'col-start-3';
-                }
-              }
-              
-              return (
-                <CalculatorButton
-                  key={`${rowIndex}-${colIndex}`}
-                  value={button}
-                  onClick={handleInput}
-                  variant={variant}
-                  className={buttonClass}
-                  theme={theme}
-                />
-              );
-            })
+            row.map((button, colIndex) => (
+              <CalculatorButton
+                key={`${rowIndex}-${colIndex}`}
+                value={button}
+                onClick={handleInput}
+                variant={getCalculatorButtonVariant(button)}
+                className={getCalculatorButtonClassName(
+                  button,
+                  rowIndex,
+                  buttonLayout,
+                  orientation
+                )}
+                theme={theme}
+              />
+            ))
           )}
         </div>
       </div>

@@ -1,20 +1,24 @@
 import typescript from '@rollup/plugin-typescript';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
-import babel from '@rollup/plugin-babel';
 
 export default {
   input: 'src/index.ts',
+  treeshake: {
+    moduleSideEffects: false,
+    propertyReadSideEffects: false,
+  },
   output: [
     {
       file: 'dist/index.js',
       format: 'cjs',
-      sourcemap: true,
+      sourcemap: false,
+      exports: 'named',
     },
     {
       file: 'dist/index.esm.js',
       format: 'esm',
-      sourcemap: true,
+      sourcemap: false,
     },
   ],
   plugins: [
@@ -23,15 +27,6 @@ export default {
       preferBuiltins: false,
     }),
     commonjs(),
-    babel({
-      babelHelpers: 'bundled',
-      exclude: 'node_modules/**',
-      presets: [
-        '@babel/preset-react',
-        '@babel/preset-typescript'
-      ],
-      extensions: ['.js', '.jsx', '.ts', '.tsx'],
-    }),
     typescript({
       tsconfig: './tsconfig.lib.json',
       declaration: true,
